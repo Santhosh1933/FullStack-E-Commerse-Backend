@@ -4,6 +4,9 @@ const authenticateToken = require("./middlewares/handleToken");
 const User = require("./models/user.model");
 const ShopOwner = require("./models/shopOwner.model");
 const Shop = require("./models/shop.model");
+const Category = require("./models/category.model");
+const Product = require("./models/product.model");
+const handleShopIdToken = require("./middlewares/handleShopIdToken");
 require("dotenv").config();
 const app = express();
 
@@ -107,5 +110,45 @@ app.post("/createCategory", async (req, res) => {
   } catch (error) {
     console.error(error);
     return res.status(500).send("Error creating category");
+  }
+});
+
+app.post("/createProduct", async (req, res) => {
+  const { name, description, category, price, discountPrice, specifications, thumbnail, images, shopId, quantity, productDetails, brand } = req.body;
+  if (!name || !description || !category || !category.id || !category.name || !price || !thumbnail || !shopId || quantity == null || !productDetails || !brand) {
+    return res.status(400).send("Name, description, category (with id and name), price, thumbnail, shopId, quantity, productDetails, and brand are required");
+  }
+  try {
+    const product = new Product({
+      name,
+      description,
+      category,
+      price,
+      discountPrice,
+      specifications,
+      thumbnail,
+      images,
+      shopId,
+      quantity,
+      productDetails,
+      brand 
+    });
+    await product.save();
+    return res.status(201).send("Product created successfully");
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error creating product");
+  }
+});
+
+app.get("/getProduct", handleShopIdToken, async (req, res) => {
+  try {
+    const shopId = req.shopId;
+    console.log(shopId)
+    const products = await Product.find({ shopId });
+    return res.status(200).json({ products });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send("Error retrieving data");
   }
 });
