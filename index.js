@@ -176,14 +176,27 @@ app.post("/createProduct", async (req, res) => {
 app.get("/getProduct", handleShopIdToken, async (req, res) => {
   try {
     const shopId = req.shopId;
-    console.log(shopId);
-    const products = await Product.find({ shopId });
-    return res.status(200).json({ products });
+    let { start, end } = req.query;
+    start = parseInt(start);
+    end = parseInt(end);
+    let products;
+    let totalCount;
+    if (start !== undefined && end !== undefined && start < end && start >= 0 && end >= 0) {
+      products = await Product.find({ shopId })
+                              .skip(start)
+                              .limit(end - start);
+      totalCount = await Product.countDocuments({ shopId });
+    } else {
+      products = await Product.find({ shopId });
+      totalCount = products.length;
+    }
+    return res.status(200).json({ totalCount, products });
   } catch (error) {
     console.error(error);
     return res.status(500).send("Error retrieving data");
   }
 });
+
 
 // GET request to retrieve individual product by productId
 app.get("/getProductById/:productId", async (req, res) => {
