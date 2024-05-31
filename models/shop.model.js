@@ -6,6 +6,10 @@ const shopSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
+  shopLogo: {
+    type: String,
+    required: true,
+  },
   address: {
     street: {
       type: String,
@@ -36,14 +40,14 @@ const shopSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'ShopOwner', 
+    ref: "ShopOwner",
   },
   contact: {
     email: {
       type: String,
       required: true,
       trim: true,
-      match: [/.+\@.+\..+/, 'Please fill a valid email address'],
+      match: [/.+\@.+\..+/, "Please fill a valid email address"],
     },
     phone: {
       type: String,
