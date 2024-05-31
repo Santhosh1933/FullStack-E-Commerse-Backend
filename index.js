@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const authenticateToken = require("./middlewares/handleToken");
 const User = require("./models/user.model");
 const ShopOwner = require("./models/shopOwner.model");
@@ -12,6 +13,7 @@ const Order = require("./models/order.model");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
+app.use(cors({ origin: "*" }));
 mongoose.connect(process.env.MONGODB_URI);
 
 app.listen(8000, () => {
@@ -96,27 +98,27 @@ app.post("/createShop", async (req, res) => {
   }
 });
 
-app.get('/shops', async (req, res) => {
+app.get("/shops", async (req, res) => {
   try {
     const shops = await Shop.find();
     return res.status(200).json(shops);
   } catch (error) {
     console.error(error);
-    return res.status(500).send('Error retrieving shops');
+    return res.status(500).send("Error retrieving shops");
   }
 });
 
-app.get('/shop/:id', async (req, res) => {
+app.get("/shop/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const shop = await Shop.findById(id);
     if (!shop) {
-      return res.status(404).send('Shop not found');
+      return res.status(404).send("Shop not found");
     }
     return res.status(200).json(shop);
   } catch (error) {
     console.error(error);
-    return res.status(500).send('Error retrieving shop');
+    return res.status(500).send("Error retrieving shop");
   }
 });
 
@@ -205,10 +207,16 @@ app.get("/getProduct", handleShopIdToken, async (req, res) => {
     end = parseInt(end);
     let products;
     let totalCount;
-    if (start !== undefined && end !== undefined && start < end && start >= 0 && end >= 0) {
+    if (
+      start !== undefined &&
+      end !== undefined &&
+      start < end &&
+      start >= 0 &&
+      end >= 0
+    ) {
       products = await Product.find({ shopId })
-                              .skip(start)
-                              .limit(end - start);
+        .skip(start)
+        .limit(end - start);
       totalCount = await Product.countDocuments({ shopId });
     } else {
       products = await Product.find({ shopId });
