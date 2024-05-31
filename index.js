@@ -96,6 +96,30 @@ app.post("/createShop", async (req, res) => {
   }
 });
 
+app.get('/shops', async (req, res) => {
+  try {
+    const shops = await Shop.find();
+    return res.status(200).json(shops);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Error retrieving shops');
+  }
+});
+
+app.get('/shop/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const shop = await Shop.findById(id);
+    if (!shop) {
+      return res.status(404).send('Shop not found');
+    }
+    return res.status(200).json(shop);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send('Error retrieving shop');
+  }
+});
+
 app.post("/createCategory", async (req, res) => {
   const { name, thumbnail, shopId } = req.body;
   if (!name || !thumbnail || !shopId) {
@@ -197,8 +221,6 @@ app.get("/getProduct", handleShopIdToken, async (req, res) => {
   }
 });
 
-
-// GET request to retrieve individual product by productId
 app.get("/getProductById/:productId", async (req, res) => {
   try {
     const productId = req.params.productId;
