@@ -222,10 +222,10 @@ app.get("/getProduct", handleShopIdToken, async (req, res) => {
       products = await Product.find({ shopId });
       totalCount = products.length;
     }
-    return res.status(200).json({ totalCount, products });
+    return res.json({ totalCount, products }).status(200);
   } catch (error) {
     console.error(error);
-    return res.status(500).send("Error retrieving data");
+    return res.send("Error retrieving data").status(500);
   }
 });
 
