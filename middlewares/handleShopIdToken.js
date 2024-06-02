@@ -9,11 +9,15 @@ const handleShopIdToken = (req, res, next) => {
   try {
     const bytes = CryptoJS.AES.decrypt(token, process.env.CRYPTO_SECRET);
     const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
+    if (!decryptedData) {
+      return res.status(401).send("Invalid token");
+    }
     req.shopId = decryptedData;
     next();
   } catch (error) {
     return res.status(401).send("Invalid token");
   }
 };
+
 
 module.exports = handleShopIdToken;

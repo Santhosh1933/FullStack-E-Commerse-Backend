@@ -202,18 +202,17 @@ app.post("/createProduct", async (req, res) => {
 app.get("/getProduct", handleShopIdToken, async (req, res) => {
   try {
     const shopId = req.shopId;
+    if (!mongoose.Types.ObjectId.isValid(shopId)) {
+      return res.status(400).send("Invalid shopId");
+    }
+
     let { start, end } = req.query;
     start = parseInt(start);
     end = parseInt(end);
     let products;
     let totalCount;
-    if (
-      start !== undefined &&
-      end !== undefined &&
-      start < end &&
-      start >= 0 &&
-      end >= 0
-    ) {
+
+    if (start !== undefined && end !== undefined && start < end && start >= 0 && end >= 0) {
       products = await Product.find({ shopId })
         .skip(start)
         .limit(end - start);
@@ -222,10 +221,10 @@ app.get("/getProduct", handleShopIdToken, async (req, res) => {
       products = await Product.find({ shopId });
       totalCount = products.length;
     }
-    return res.json({ totalCount, products }).status(200);
+    return res.status(200).json({ totalCount, products });
   } catch (error) {
     console.error(error);
-    return res.send("Error retrieving data").status(500);
+    return res.status(500).send("Error retrieving data");
   }
 });
 
@@ -246,6 +245,9 @@ app.get("/getProductById/:productId", async (req, res) => {
 app.get("/getCategories", handleShopIdToken, async (req, res) => {
   try {
     const shopId = req.shopId;
+    if (!mongoose.Types.ObjectId.isValid(shopId)) {
+      return res.status(400).send("Invalid shopId");
+    }
     console.log(shopId);
     const categories = await Category.find({ shopId });
     return res.status(200).json({ categories });
