@@ -199,14 +199,14 @@ app.post("/createProduct", async (req, res) => {
   }
 });
 
-app.get("/getProduct", handleShopIdToken, async (req, res) => {
+app.get("/getProduct", async (req, res) => {
   try {
-    const shopId = req.shopId;
-    if (!mongoose.Types.ObjectId.isValid(shopId)) {
+    let { start, end ,shopId} = req.query;
+   
+    if (!(shopId)) {
       return res.status(400).send("Invalid shopId");
     }
 
-    let { start, end } = req.query;
     start = parseInt(start);
     end = parseInt(end);
     let products;
@@ -242,13 +242,12 @@ app.get("/getProductById/:productId", async (req, res) => {
   }
 });
 
-app.get("/getCategories", handleShopIdToken, async (req, res) => {
+app.get("/getCategories", async (req, res) => {
   try {
-    const shopId = req.shopId;
-    if (!mongoose.Types.ObjectId.isValid(shopId)) {
+    const {shopId} = req.query;
+    if (!(shopId)) {
       return res.status(400).send("Invalid shopId");
     }
-    console.log(shopId);
     const categories = await Category.find({ shopId });
     return res.status(200).json({ categories });
   } catch (error) {
