@@ -279,7 +279,7 @@ app.post("/add-to-cart", authenticateToken, async (req, res) => {
         (item) => item.productId.toString() === productId
       );
       if (existingItem) {
-        existingItem.quantity += correctedQuantity;
+        existingItem.quantity = correctedQuantity;
       } else {
         cart.items.push({ productId, quantity: correctedQuantity });
       }
@@ -312,7 +312,6 @@ app.post("/cart-length", authenticateToken, async (req, res) => {
     return res.status(500).json({ error: "Internal server error" });
   }
 });
-
 
 app.post("/remove-from-cart", authenticateToken, async (req, res) => {
   try {
