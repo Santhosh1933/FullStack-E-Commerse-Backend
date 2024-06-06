@@ -10,6 +10,7 @@ const Product = require("./models/product.model");
 const handleShopIdToken = require("./middlewares/handleShopIdToken");
 const Cart = require("./models/cart.model");
 const Order = require("./models/order.model");
+const authenticateTokenByHeader = require("./middlewares/handleTokenByHeader");
 require("dotenv").config();
 const app = express();
 app.use(express.json());
@@ -291,6 +292,28 @@ app.post("/add-to-cart", authenticateToken, async (req, res) => {
   }
 });
 
+app.post("/cart-length", authenticateToken, async (req, res) => {
+  try {
+    const { email, shopId } = req.user;
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json(0);
+    }
+    const userId = user._id;
+    const cart = await Cart.findOne({ userId, shopId });
+
+    if (!cart) {
+      return res.status(200).json( 0 );
+    } else {
+      const cartLength = cart.items.length;
+      return res.status(200).json(cartLength);
+    }
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+
 app.post("/remove-from-cart", authenticateToken, async (req, res) => {
   try {
     const { email, shopId } = req.user;
@@ -325,7 +348,7 @@ app.post("/remove-from-cart", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/get-cart", authenticateToken, async (req, res) => {
+app.get("/get-cart", authenticateTokenByHeader, async (req, res) => {
   try {
     const { email, shopId } = req.user;
     const user = await User.findOne({ email });
